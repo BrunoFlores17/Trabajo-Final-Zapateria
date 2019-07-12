@@ -1,0 +1,101 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <title>Compra de Productos</title>
+    </h:head>
+    <h:body>
+        <ui:composition template="./template/menuTemplate.xhtml">
+        <ui:define name="content">
+            <p:panel id="pn1CompraProductos">
+                <p:growl id="msgs" showDetail="true"/>
+                <h:form id="frmCompraProducto" enctype="multipart/form-data">
+                    <h:panelGrid id="tblCompraProductos" columns="5">
+                        <p:dataTable id="dtTblCompraProductos"
+                                     value="#{productoFormBean.listadoProductos}"
+                                     var="cadaProd"
+                                     emptyMessage="NO hay productos para comprar">
+                            <p:column headerText="Producto">
+                                <p:outputLabel value="#{cadaProd.descripcion}"/>
+                            </p:column>
+                            <p:column headerText="Caegoria">
+                                <p:outputLabel value="#{cadaProd.categorias.descripcion}"/>
+                            </p:column>
+                            <p:column headerText="Precio">
+                                <p:outputLabel value="#{cadaProd.precio}"/>
+                            </p:column>
+                            <p:column headerText="Cantidad">
+                                <p:spinner value="#{detalleFormBean.cantidadProd}" min="0" max="#{cadaProd.stock}" required="true"/>
+                                <p:ajax update="totalProductos" process="@this"/>
+                            </p:column>
+                            <p:column headerText="Total Producto">
+                                <p:outputLabel id="totalProducto" value="#{detalleFormBean.calculoTotalProducto}"/>
+                            </p:column>
+                            <p:column headerText="Comprar">
+                                <p:selectBooleanCheckbox id="seleccionar">
+                                    <p:ajax listener="#{detalleFormBean.confirmarCompra(unProducto)}"/>
+                                </p:selectBooleanCheckbox>
+                            </p:column>
+                        </p:dataTable>
+                        <p:commandButton id="confirmaCompra" value="Pagar" oncomplete="PF('confirmaCompra').show()" update=":frmConfirmacionCompraProducto"/>
+                </h:panelGrid>
+                    <p:dialog id="dlgConfirmaCompra" widgetVar="ConfirmaCompra"
+                              header="Confirmar Compra de Productos" resizable="flase"
+                        showEffect="explode" hideEffect="explode" modal="true">
+                        <h:form id="frmConfirmacionCompraProducto" enctype="multipart/form-data">
+                            <p:panelGrid id="tblConfirmacionCompraProducto" columns="5">
+                                <p:dataTable id="dtTblConfirmCompraProd">
+                                             value="#{detalleFormBean.listadoDetalleCompra}" var="cadaDet" 
+                                             emptyMessage="No hay prodctos por comprar"
+                                             <p:column headerText="Producto">
+                                                 <p:outputLabel value="#{cadaDet.productos.descripcion}"/>
+                                             </p:column>
+                                             <p:column headerText="Cantidad">
+                                                 <p:outputLabel value="#{cadaDet.cantidad}"/>
+                                    </p:column>
+                                             <p:column headerText="Total Producto">
+                                                 <p:outputLabel value="#{cadaDet.precioProdCant}"/>
+                                    </p:column>
+                                </p:dataTable>
+                                             
+                            </p:panelGrid>
+                            <p:panelGrid id="botonesConfirmCompra" columns="2">
+                                <p:outputLabel id="lblModoPago" value="Modo Pago:"/>
+                                <p:selectOneMenu id="modPago" value="#{detalleFormBean.modoPago.descripcion}"
+                                                 converter="omnifaces.SelectItemsConverter">
+                                    <f:selectItem itemLabel="Seleccione Modo de Pago" itemValue="#{null}" 
+                                                  noSelectionOption="true" />
+                                    <f:selectItems value="#{detalleFormBean.tiposModoPago}" 
+                                                   var="modP" 
+                                                  itemLabel="#{modP}" 
+                                                  itemValue="#{modP}"/>
+                                    
+                                                  
+                                </p:selectOneMenu>
+                                <p:outputLabel id="lblCuotas" value="Cantidad Cuotas:"/>
+                                <p:spinner value="#{detalleFormBean.modoPago.cuotas}" min="0" max="12"/>
+                                <p:commandButton id="btnConfirmarCompraProductos" value="Confirma Compra" 
+                                                 action="#{detalleFormBean.confirmarCompra()}" oncomplete="PF('confirmarCompra'.hide())">
+                                </p:commandButton>
+                                <p:commandButton id="btnCerrarAltaProducto" value="Salir" 
+                                                 oncomplete="PF('confirmarCompra').hide()"/>
+                            </p:panelGrid>
+                        </h:form> 
+                    </p:dialog>
+                    
+                </h:form>
+                
+            </p:panel>
+            
+        </ui:define>
+        
+        
+    </ui:composition>
+    </h:body>
+   
+</html>
+
